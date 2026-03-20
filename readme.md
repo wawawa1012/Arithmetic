@@ -33,6 +33,9 @@
 28. [寻找峰值 (Find Peak Element)](#28-寻找峰值-find-peak-element)
 29. [搜索二维矩阵 (Search a 2D Matrix)](#29-搜索二维矩阵-search-a-2d-matrix)
 30. [Pow(x, n) (快速幂)](#30-powx-n-快速幂)
+31. [搜索旋转排序数组 (Search in Rotated Sorted Array)](#31-搜索旋转排序数组-search-in-rotated-sorted-array)
+32. [从前序与中序遍历序列构造二叉树 (Construct Binary Tree...)](#32-从前序与中序遍历序列构造二叉树-construct-binary-tree-from-preorder-and-inorder-traversal)
+33. [Karatsuba 大数乘法 (Karatsuba Multiplication)](#33-karatsuba-大数乘法-karatsuba-multiplication)
 
 ---
 
@@ -442,3 +445,48 @@
 * **工程级防爆雷 (负数与溢出陷阱)：**
   1. **负数次幂处理：** 当 $n$ 为负数时，在数学上等价于底数取倒数 ($x = 1/x$)，同时指数转为正数。
   2. **致命的整型溢出 (Integer Overflow)：** C++ 中 32 位 `int` 的最小值为 `-2147483648`。如果直接对其执行 `-n` 取相反数，会瞬间击穿正数的最大上限 (`2147483647`) 导致越界报错。因此，**必须在函数起手的第一步，使用 `long long N = n;` 将变量升格接管**，再进行后续的绝对值操作。
+
+---
+
+## 31. 搜索旋转排序数组 (Search in Rotated Sorted Array)
+
+**📝 题干描述：**
+在一个部分旋转的升序数组中查找目标值 `target`。要求时间复杂度必须是 O(log N)。 (LeetCode 33)
+
+**💡 核心思路 (大老板的盲盒理论)：**
+* **绝对真理：** 将旋转数组从中间 `mid` 劈开，必定有一半是完美的升序区间（软柿子），另一半是包含了旋转断点的乱序区间（盲盒）。
+* **降维打击：** 永远只判断 `target` 是否严格落在“完美升序区间”的射程内。如果在，就直接丢弃盲盒；如果不在，说明目标绝对藏在盲盒里，直接烧掉升序区间。绝对不写 `for` 循环去盲盒里找，而是挪动指针，把盲盒扔给下一轮 `while` 循环去继续劈开。
+* **⚠️ 边界血泪史 (双人极限测试)：** 1. 判断左半场是否有序时，必须使用 `nums[left] <= nums[mid]`。因为当区间只剩 2 个元素时，`mid` 会与 `left` 重合，此时左半场的 1 个元素天然有序，缺了等号会直接漏判。
+  2. 射程判断必须包含物理边缘：`target >= nums[left]` 或 `target <= nums[right]`，否则恰好踩在边界上的猎物会被当场放跑。
+
+---
+
+## 32. 从前序与中序遍历序列构造二叉树 (Construct Binary Tree from Preorder and Inorder Traversal)
+
+**📝 题干描述：**
+给定二叉树的前序遍历和中序遍历数组，重构这棵二叉树。(LeetCode 105)
+
+**💡 核心思路 (剪胶布的物理艺术)：**
+* **找老大与算人数：** 前序遍历的第一项永远是当前辖区的 Root（老大）。拿着 Root 去中序遍历里定位，Root 左边的就是左派系人数（`left_size`），右边的就是右派系。
+* **分治 (Divide & Conquer)：** 根据查出来的 `left_size`，像剪胶布一样，把前序和中序数组精准剪成两半，分别下发给构造左子树和右子树的递归函数。
+* **⚠️ 工程避坑指南：**
+  1. **拒绝 O(N^2)：** 绝对不要在递归里用 `for` 循环去找 Root 的中序位置。必须在起手时建立一个 `unordered_map<int, int>` 账本，实现 O(1) 的瞬间定位。
+  2. **坐标系偏移：** 前序数组切分左子树胶布时，起点是 `preorder_left + 1`，长度是 `left_size`，所以终点严格落在 `preorder_left + left_size`。画图推演边界是树形分治的唯一解药。
+
+---
+
+## 33. Karatsuba 大数乘法 (Karatsuba Multiplication)
+
+**📝 题干描述：**
+实现 Karatsuba 算法，将两个大整数的相乘的时间复杂度从 O(N^2) 降维到 O(N^1.585)。
+
+**💡 核心思路 (买二送一的代数黑魔法)：**
+* 将长数字对半劈开为高位和低位：`num1 = high1 * 10^m + low1`。
+* 传统的暴力分配律需要计算 4 次乘法。Karatsuba 极其精妙地只计算 3 次递归乘法：
+  1. 高位乘积：`z2 = high1 * high2`
+  2. 低位乘积：`z0 = low1 * low2`
+  3. 混合乘积：`z1 = (high1 + low1) * (high2 + low2)`
+* 最终通过 `z1 - z2 - z0` 巧妙赎回了中间的交叉项，完成 O(N^2) 铁板的物理击穿。最终组合：`z2 * 10^(2m) + (z1 - z2 - z0) * 10^m + z0`。
+* **⚠️ C++ 强类型排雷：**
+  1. **溢出杀手：** 过程中的临时变量、劈开的高低位，必须全面使用 `long long` 接管。若用 `int` 中转，十几位的数字会瞬间被截断爆表。
+  2. **精度背刺：** `<cmath>` 中的 `pow()` 函数返回的是浮点数 `double`，用于大整数乘法时极易产生末尾精度丢失，导致强转 `long long` 时少一位。必须极其严谨地显式强转 `(long long)pow(10, m)`。
