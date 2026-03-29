@@ -4,8 +4,8 @@
 #include <climits> // 引入 INT_MIN
 using namespace std;
 
-
-class Solution {
+//递归实现
+/*class Solution {
 private:
     int findMax(vector<int>& nums,int left,int right)
     {
@@ -39,5 +39,25 @@ public:
     int maxSubArray(vector<int>& nums)
     {
         return findMax(nums, 0, nums.size() - 1);
+    }
+};*/
+
+//DP实现
+class Solution
+{
+public:
+    int maxSubArray(vector<int>& nums)
+    {
+        int n=nums.size();
+        vector<int> dp(n,INT_MIN);
+        //元素的含义是前i个数字最大和
+        dp[0]=nums[0];
+        int res=dp[0];
+        for (int i=1;i<n;i++)
+        {
+            dp[i]=max(dp[i-1]+nums[i],nums[i]);
+            res=max(res,dp[i]);
+        }
+        return res;
     }
 };
