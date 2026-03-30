@@ -8,7 +8,8 @@
 #include <iostream>
 #include <vector>
 using namespace std;
-class Solution {
+//递归解法
+/*class Solution {
 public:
     vector<vector<int>> subsets(vector<int>& nums) {
         vector<int> path;
@@ -32,4 +33,41 @@ private:
             dfs(nums,index+1,path,res);//忽略那个数
         }
    }
+};*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> subsets(vector<int>& nums) {
+        vector<vector<int>> res;
+        int n=nums.size();
+        int digits=1<<n;//子集总数
+        for (int i=0;i<digits;i++)
+        {
+            vector<int> temp;
+            for (int j=0;j<n;j++)
+            {
+                if (i&(1<<j)) temp.push_back(nums[j]);//电脑里i是二进制表示，因此可以
+            }
+            res.push_back(temp);
+        }
+        return res;
+    }
 };
+
+int main() {
+    Solution sol;
+    vector<int> nums = {1, 2, 3};
+    vector<vector<int>> res = sol.subsets(nums);
+
+    cout << "二进制暴力破解的子集如下：" << endl;
+    for (const auto& subset : res) {
+        cout << "[ ";
+        for (int num : subset) cout << num << " ";
+        cout << "]" << endl;
+    }
+    return 0;
+}
