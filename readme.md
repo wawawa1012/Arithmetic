@@ -73,6 +73,9 @@
 67. [最长连续序列 (Longest Consecutive Sequence)](#67-最长连续序列-longest-consecutive-sequence)
 68. [找到所有数组中消失的数字 (Find All Numbers Disappeared in an Array)](#68-找到所有数组中消失的数字-find-all-numbers-disappeared-in-an-array)
 69. [快乐数 (Happy Number)](#69-快乐数-happy-number)
+70. [寻找重复数 (Find the Duplicate Number)](#70-寻找重复数-find-the-duplicate-number)
+71. [颜色分类 (Sort Colors)](#71-颜色分类-sort-colors)
+72. [删除字符串中的所有相邻重复项 (Remove All Adjacent Duplicates In String)](#72-删除字符串中的所有相邻重复项-remove-all-adjacent-duplicates-in-string)
 ---
 
 ### 💡 核心数据结构与算法总结
@@ -1088,3 +1091,38 @@
   * `fast = getNext(getNext(fast))` 相当于 `fast = fast->next->next`。
   * 如果在到达 `1` 之前，`fast == slow`，说明链表存在环，陷入了死循环！
   * **🚨 核心排雷：** 必须区分“在 1 处相遇”和“在循环环路中相遇”。判断条件必须是两人相遇且当前值不等于 1 时，才判定为假快乐数。(空间复杂度 $O(1)$)
+
+---
+
+## 70. 寻找重复数 (Find the Duplicate Number)
+
+**📝 题干描述：**
+给定一个包含 `n + 1` 个整数的数组 `nums`，其数字都在 `[1, n]` 范围内。找出那个唯一的重复数。必须不修改数组且空间复杂度为 $O(1)$。(LeetCode 287)
+
+**💡 核心思路 (变治法 / 极限降维：值即指针)：**
+* 将数组变治为隐形链表：`next_node = nums[current_node]`。存在重复数字必定意味着链表有环。
+* **Floyd 判环：** 快慢指针找到相遇点后，将其中一个拨回起点 0，同速前进，再次相遇的节点即为环入口（重复数）。
+
+---
+
+## 71. 颜色分类 (Sort Colors)
+
+**📝 题干描述：**
+原地对包含红白蓝（0, 1, 2）的数组进行排序，要求 One-Pass (一次遍历) 且空间 $O(1)$。(LeetCode 75)
+
+**💡 核心思路 (三指针 / 荷兰国旗切分)：**
+* **左门卫 `left`** 接收 0，**右门卫 `right`** 接收 2。
+* **巡逻兵 `curr`** 遍历数组：遇到 0 丢给左边，遇到 2 丢给右边，遇到 1 留在原地。
+* **🚨 核心排雷：** 巡逻兵和右门卫交换后，换过来的数字是未知的，因此 `curr` 绝对不能往前走，必须停在原地继续检查！
+
+---
+
+## 72. 删除字符串中的所有相邻重复项 (Remove All Adjacent Duplicates In String)
+
+**📝 题干描述：**
+给出由小写字母组成的字符串 `s`。删除所有相邻且相同的字母，直到无法删除为止。(LeetCode 1047)
+
+**💡 核心思路 (栈式物理消除)：**
+* 极其解压的物理操作：将字符逐个入栈。入栈前检查手里字符是否与栈顶字符相同。
+* 如果相同：同归于尽（栈顶出栈）。如果不同：装入栈中。
+* **代码优化：** 在 C++ 中，直接使用 `string` 充当栈（利用 `push_back` 和 `pop_back`），最后甚至省去了倒序输出的步骤，极致简洁。
