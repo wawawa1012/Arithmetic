@@ -76,6 +76,9 @@
 70. [寻找重复数 (Find the Duplicate Number)](#70-寻找重复数-find-the-duplicate-number)
 71. [颜色分类 (Sort Colors)](#71-颜色分类-sort-colors)
 72. [删除字符串中的所有相邻重复项 (Remove All Adjacent Duplicates In String)](#72-删除字符串中的所有相邻重复项-remove-all-adjacent-duplicates-in-string)
+73. [行星碰撞 (Asteroid Collision)](#73-行星碰撞-asteroid-collision)
+74. [无重叠区间 (Non-overlapping Intervals)](#74-无重叠区间-non-overlapping-intervals)
+75. [用最少数量的箭引爆气球 (Minimum Number of Arrows to Burst Balloons)](#75-用最少数量的箭引爆气球-minimum-number-of-arrows-to-burst-balloons)
 ---
 
 ### 💡 核心数据结构与算法总结
@@ -1126,3 +1129,42 @@
 * 极其解压的物理操作：将字符逐个入栈。入栈前检查手里字符是否与栈顶字符相同。
 * 如果相同：同归于尽（栈顶出栈）。如果不同：装入栈中。
 * **代码优化：** 在 C++ 中，直接使用 `string` 充当栈（利用 `push_back` 和 `pop_back`），最后甚至省去了倒序输出的步骤，极致简洁。
+
+---
+
+## 73. 行星碰撞 (Asteroid Collision)
+
+**📝 题干描述：**
+给定一个整数数组 `asteroids`，表示轨道上的行星。绝对值表示大小，正负表示方向（正右负左）。相撞时小行星爆炸，大小相同则同归于尽。找出碰撞后剩下的所有行星。(LeetCode 735)
+
+**💡 核心思路 (栈式物理模拟 / 连环碰撞)：**
+* **物理陷阱：** 碰撞不是一次性的。一颗巨大的向左飞的行星（如 -10），可以像推土机一样把栈里所有较小的向右飞的行星连环撞碎。必须使用 `while` 循环进行彻底清理。
+* **大厂级施工 (引入生死牌)：**
+  * 为每一颗即将入栈的新行星设置存活标志 `bool alive = true`。
+  * **🚨 极其致命的防御：** `while` 循环的条件必须包含 `!res.empty()`，否则在连续碰撞导致栈空时调用 `res.back()` 会直接引发段错误崩溃！
+  * **碰撞规则：** * `curr > prev`：栈顶被毁 (`pop_back`)，新行星继续存活，继续循环去撞下一个。
+    * `curr == prev`：同归于尽，栈顶被毁 (`pop_back`)，新行星死亡 (`alive = false`)。
+    * `curr < prev`：新行星直接死亡 (`alive = false`)。
+  * 循环结束后，仅当 `alive == true` 时，才将新行星推入存活者基地 (`res.push_back(asteroid)`)。
+
+---
+
+## 74. 无重叠区间 (Non-overlapping Intervals)
+
+**📝 题干描述：** 返回移除区间的最小数量，使剩余区间互不重叠。(LeetCode 435)
+
+**💡 核心思路 (贪心 / 按终点排序的奥义)：**
+* **物理陷阱：** 绝不能按起点排序，否则一个起点早但跨度极大的区间会“吞噬”内部所有短区间，导致删除过多。
+* **预排序：** 按照区间的**终点 (End)** 升序排序。
+* **会议室法则：** 谁先结束，就把空间给谁！这样留给后面的剩余空间最大。如果新区间起点 $<$ 当前最晚结束时间，直接砍掉。
+
+---
+
+## 75. 用最少数量的箭引爆气球 (Minimum Number of Arrows to Burst Balloons)
+
+**📝 题干描述：** 求引爆所有重叠气球所需的最少箭数。(LeetCode 452)
+
+**💡 核心思路 (贪心 / 寻找重叠交集)：**
+* 这道题本质上是《无重叠区间》的对偶问题。不重叠需要开新房间，这里是不重叠需要射新箭。
+* **预排序：** 必须按**右边界 (End)** 排序。右边界代表气球飞走的 Deadline。
+* **贪心射击：** 第一支箭极其贪心地射向第一个气球的最右边界 `curr_pos`。由于数组按右边界排序，后续气球绝对不会在 `curr_pos` 之前结束，因此只需判断后续气球的左边界是否 $\le curr_pos$ 即可确定是否被同一支箭穿透。
