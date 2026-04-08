@@ -79,6 +79,8 @@
 73. [行星碰撞 (Asteroid Collision)](#73-行星碰撞-asteroid-collision)
 74. [无重叠区间 (Non-overlapping Intervals)](#74-无重叠区间-non-overlapping-intervals)
 75. [用最少数量的箭引爆气球 (Minimum Number of Arrows to Burst Balloons)](#75-用最少数量的箭引爆气球-minimum-number-of-arrows-to-burst-balloons)
+76. [霍纳法则极速求值 (Horner's Rule Evaluation)](#76-霍纳法则极速求值-horners-rule-evaluation)
+77. [数组中的第 K 个最大元素 (Kth Largest Element in an Array)](#77-数组中的第-k-个最大元素-kth-largest-element-in-an-array)
 ---
 
 ### 💡 核心数据结构与算法总结
@@ -1168,3 +1170,33 @@
 * 这道题本质上是《无重叠区间》的对偶问题。不重叠需要开新房间，这里是不重叠需要射新箭。
 * **预排序：** 必须按**右边界 (End)** 排序。右边界代表气球飞走的 Deadline。
 * **贪心射击：** 第一支箭极其贪心地射向第一个气球的最右边界 `curr_pos`。由于数组按右边界排序，后续气球绝对不会在 `curr_pos` 之前结束，因此只需判断后续气球的左边界是否 $\le curr_pos$ 即可确定是否被同一支箭穿透。
+
+---
+
+## 76. 霍纳法则极速求值 (Horner's Rule Evaluation)
+
+**📝 题干描述：**
+给定一个 $n$ 次多项式的系数数组 `coeffs` (按最高次幂到常数项排列)，以及一个给定的 $x$ 值。要求以低于 $O(N^2)$ 的时间复杂度计算多项式的结果。
+
+**💡 核心思路 (变治法 / 化简实例 Instance Simplification)：**
+* **物理陷阱：** 传统的代入计算会产生大量的重复乘法，一个 $n$ 次多项式需要做 $\frac{n(n+1)}{2}$ 次乘法，复杂度为极其臃肿的 $O(N^2)$。
+* **霍纳魔法 (提取公因式)：** 将多项式 $a_n x^n + a_{n-1} x^{n-1} + \dots + a_0$ 变治为：
+  $( \dots (a_n \cdot x + a_{n-1}) \cdot x + \dots ) \cdot x + a_0$
+* **代码落地：** 只需维护一个结果变量 `res`，初始值为最高次系数 `coeffs[0]`。
+  向后单层遍历数组，每次执行 `res = res * x + coeffs[i]`。
+  最终将乘法次数极限压榨到 **$n$ 次**，时间复杂度极其完美地降维至 **$O(N)$**！
+
+---
+
+## 77. 数组中的第 K 个最大元素 (Kth Largest Element in an Array)
+
+**📝 题干描述：**
+给定整数数组 `nums` 和整数 `k`，请返回数组中第 `k` 个最大的元素。要求时间复杂度达到 $O(N \log K)$ 或 $O(N + K \log N)$。(LeetCode 215)
+
+**💡 核心思路 (变治法 / 改变表现形式 Representation Change)：**
+* **物理陷阱：** 绝不能直接对全数组进行 $O(N \log N)$ 的 `sort()` 排序，这会造成极其严重的算力浪费。堆的物理特性仅保证上下级关系，不保证平级兄弟关系，因此绝对不能直接去下标 `k-1` 取值。
+* **大厂级施工 (手撕大顶堆)：**
+  1. **$O(N)$ 原地建堆：** 从倒数第一个非叶子节点开始逆序执行 `sift_down`。**🚨 绝对公式：** 倒数第一个非叶子节点下标必为 `n/2 - 1`。
+  2. **斩首行动 (Pop)：** 执行 $k - 1$ 次循环。每次将堆顶（当前最大值）与数组末尾交换，使用 `pop_back()` 物理销毁末尾元素以缩小堆体积，然后让新的堆顶 `sift_down` 恢复秩序。
+  3. **边界防线：** `sift_down` 循环条件必须严格为 `2*i+1 < n`；探寻右孩子时必须严格判断 `j+1 < n` 以防越界。
+  4. 循环结束后，残存的堆顶 `nums[0]` 即为全场第 $K$ 大的元素。
