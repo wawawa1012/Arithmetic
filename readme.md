@@ -81,6 +81,8 @@
 75. [用最少数量的箭引爆气球 (Minimum Number of Arrows to Burst Balloons)](#75-用最少数量的箭引爆气球-minimum-number-of-arrows-to-burst-balloons)
 76. [霍纳法则极速求值 (Horner's Rule Evaluation)](#76-霍纳法则极速求值-horners-rule-evaluation)
 77. [数组中的第 K 个最大元素 (Kth Largest Element in an Array)](#77-数组中的第-k-个最大元素-kth-largest-element-in-an-array)
+78. [翻转二叉树 (Invert Binary Tree)](#78-翻转二叉树-invert-binary-tree)
+79. [前 K 个高频元素 (Top K Frequent Elements)](#79-前-k-个高频元素-top-k-frequent-elements)
 ---
 
 ### 💡 核心数据结构与算法总结
@@ -1200,3 +1202,32 @@
   2. **斩首行动 (Pop)：** 执行 $k - 1$ 次循环。每次将堆顶（当前最大值）与数组末尾交换，使用 `pop_back()` 物理销毁末尾元素以缩小堆体积，然后让新的堆顶 `sift_down` 恢复秩序。
   3. **边界防线：** `sift_down` 循环条件必须严格为 `2*i+1 < n`；探寻右孩子时必须严格判断 `j+1 < n` 以防越界。
   4. 循环结束后，残存的堆顶 `nums[0]` 即为全场第 $K$ 大的元素。
+
+---
+
+## 78. 翻转二叉树 (Invert Binary Tree)
+
+**📝 题干描述：**
+给定一棵二叉树的根节点 `root`，翻转这棵二叉树，并返回其根节点。（注：著名的 Google 白板面试名梗题）(LeetCode 226)
+
+**💡 核心思路 (递归 / 分治美学)：**
+* **物理陷阱：** 绝对不能只交换节点里的 `val`（值），这等同于只换将帅的工牌而不换军队！必须直接交换左右儿子的**指针**。
+* **绝对防线 (Base Case)：** 如果 `root == nullptr`，直接返回 `nullptr`。
+* **分治执行：** 1. 使用 `swap(root->left, root->right)` 将当前节点的左右子树连根拔起互换位置。
+  2. 对新的左儿子下达递归命令 `invertTree(root->left)`。
+  3. 对新的右儿子下达递归命令 `invertTree(root->right)`。
+* 代码极其精简，5 行以内解决战斗，完美诠释树形结构的递归下降。
+
+---
+
+## 79. 前 K 个高频元素 (Top K Frequent Elements)
+
+**📝 题干描述：**
+给定一个整数数组 `nums` 和一个整数 `k`，返回其中出现频率前 `k` 高的元素。要求时间复杂度优于 $O(N \log N)$。(LeetCode 347)
+
+**💡 核心思路 (哈希表 + 小顶堆的工业级组合 / 变治法)：**
+* **第一阶段 (统计海选)：** 利用 `unordered_map<int, int>` 统计每个数字出现的频率。
+* **第二阶段 (小顶堆 VIP 俱乐部)：** * 构建小顶堆，内部存储 `pair<频率, 数字>`。C++ 中 `priority_queue` 默认比较 `pair` 的 `first`，因此将频率放在 `first` 可以极其巧妙地利用频率建堆。
+  * 遍历哈希表，将元素推入堆中。如果堆的大小超过 `k`，则将堆顶（当前频率最低的门卫）踢出，确保堆内永远只保留全场最强的 $K$ 个元素。
+* **提取胜利者：** 选秀结束后，必须从 `minHeap` 中逐个提取元素。极其注意：提取的是 `minHeap.top().second`（即数字本身），切忌跑回哈希表去提人！
+* **复杂度降维：** 遍历数组 $O(N)$，维护大小为 $K$ 的堆 $O(N \log K)$，总时间复杂度极其完美地压制在 $O(N \log K)$。
